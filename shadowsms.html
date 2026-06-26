@@ -1,0 +1,660 @@
+import { useState, useEffect } from "react";
+
+const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #07070f; color: #fff; }
+
+  :root {
+    --p: #7c3aed; --pl: #a855f7; --pd: #5b21b6;
+    --gold: #fbbf24; --gold2: #f59e0b;
+    --ok: #22c55e; --err: #ef4444; --warn: #f59e0b;
+    --bg: #07070f; --bg2: #0f0f1a; --bg3: #161627; --bg4: #1e1e35;
+    --border: #2a2a45; --t2: #8888aa; --wave: #06b6d4;
+  }
+
+  .app { max-width: 430px; margin: 0 auto; min-height: 100vh; background: var(--bg); position: relative; overflow-x: hidden; }
+
+  /* PARTICLES BG */
+  .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; max-width: 430px; left: 50%; transform: translateX(-50%); }
+  .particle { position: absolute; border-radius: 50%; animation: float linear infinite; opacity: 0.15; }
+  @keyframes float { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 10% { opacity: 0.15; } 90% { opacity: 0.15; } 100% { transform: translateY(-100px) scale(1); opacity: 0; } }
+
+  /* AUTH */
+  .auth { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 28px 24px; position: relative; z-index: 1; background: radial-gradient(ellipse at top, #1a0a3f 0%, #07070f 60%); }
+  .auth-logo { text-align: center; margin-bottom: 36px; }
+  .auth-logo .glow { font-size: 64px; animation: pulse 2s ease-in-out infinite; filter: drop-shadow(0 0 20px #7c3aed); }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+  .auth-logo h1 { font-size: 30px; font-weight: 900; background: linear-gradient(135deg, #a855f7, #fbbf24, #a855f7); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shine 3s linear infinite; }
+  @keyframes shine { 0% { background-position: 0% } 100% { background-position: 200% } }
+  .auth-logo p { color: var(--t2); font-size: 14px; margin-top: 6px; letter-spacing: 1px; }
+
+  .auth-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 24px; padding: 28px; width: 100%; max-width: 380px; box-shadow: 0 20px 60px rgba(124,58,237,0.2); }
+  .auth-tabs { display: flex; background: var(--bg2); border-radius: 14px; padding: 4px; margin-bottom: 24px; }
+  .auth-tab { flex: 1; padding: 11px; border: none; background: none; color: var(--t2); font-size: 14px; font-weight: 700; cursor: pointer; border-radius: 11px; transition: all 0.25s; }
+  .auth-tab.active { background: linear-gradient(135deg, var(--p), var(--pl)); color: white; box-shadow: 0 4px 15px rgba(124,58,237,0.4); }
+
+  .inp-wrap { margin-bottom: 14px; }
+  .inp-wrap label { font-size: 12px; color: var(--t2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
+  .inp-wrap input { width: 100%; background: var(--bg2); border: 1.5px solid var(--border); border-radius: 13px; padding: 14px 16px; color: white; font-size: 15px; outline: none; transition: all 0.2s; }
+  .inp-wrap input:focus { border-color: var(--pl); box-shadow: 0 0 0 3px rgba(168,85,247,0.15); }
+  .inp-wrap input::placeholder { color: #444466; }
+
+  .btn-main { width: 100%; background: linear-gradient(135deg, var(--p), var(--pl)); border: none; border-radius: 14px; padding: 16px; color: white; font-size: 16px; font-weight: 800; cursor: pointer; margin-top: 8px; transition: all 0.2s; box-shadow: 0 6px 25px rgba(124,58,237,0.45); letter-spacing: 0.5px; }
+  .btn-main:hover { transform: translateY(-2px); box-shadow: 0 10px 35px rgba(124,58,237,0.55); }
+  .btn-main:active { transform: translateY(0); }
+
+  /* HEADER */
+  .header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: rgba(15,15,26,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
+  .hlogo { font-size: 17px; font-weight: 900; background: linear-gradient(135deg, #a855f7, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hsolde { font-size: 12px; color: var(--t2); margin-top: 2px; }
+  .hsolde b { color: var(--gold); font-size: 14px; }
+  .havatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--p), var(--pl)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; box-shadow: 0 0 15px rgba(124,58,237,0.4); }
+
+  /* CONTENT */
+  .content { padding: 20px; padding-bottom: 95px; position: relative; z-index: 1; }
+
+  /* NAV */
+  .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: rgba(15,15,26,0.97); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; padding: 10px 0 18px; z-index: 50; }
+  .ni { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; position: relative; }
+  .ni-icon { font-size: 24px; transition: all 0.25s; }
+  .ni-label { font-size: 11px; color: var(--t2); font-weight: 600; transition: color 0.25s; }
+  .ni.active .ni-label { color: var(--pl); }
+  .ni.active .ni-icon { transform: scale(1.2); filter: drop-shadow(0 0 8px #a855f7); }
+  .ni-dot { width: 5px; height: 5px; background: var(--pl); border-radius: 50%; position: absolute; top: -2px; }
+
+  /* ACCUEIL */
+  .hero { background: linear-gradient(135deg, #1a0a3f, #0f0f2e, #1a0a3f); border: 1px solid rgba(168,85,247,0.2); border-radius: 24px; padding: 24px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: -40px; right: -40px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(168,85,247,0.3), transparent); border-radius: 50%; }
+  .hero::after { content: ''; position: absolute; bottom: -30px; left: -30px; width: 100px; height: 100px; background: radial-gradient(circle, rgba(251,191,36,0.15), transparent); border-radius: 50%; }
+  .hero-greet { font-size: 14px; color: var(--t2); margin-bottom: 4px; }
+  .hero-name { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
+  .hero-solde-label { font-size: 12px; color: var(--t2); text-transform: uppercase; letter-spacing: 1px; }
+  .hero-amount { font-size: 38px; font-weight: 900; color: var(--gold); line-height: 1.1; }
+  .hero-currency { font-size: 16px; color: rgba(255,255,255,0.6); font-weight: 600; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--ok); font-weight: 600; margin-top: 8px; }
+
+  .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .qa { background: var(--bg3); border: 1px solid var(--border); border-radius: 18px; padding: 18px; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .qa:hover { border-color: var(--pl); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.2); }
+  .qa-icon { font-size: 32px; margin-bottom: 8px; }
+  .qa-label { font-size: 13px; font-weight: 700; }
+  .qa-sub { font-size: 11px; color: var(--t2); margin-top: 3px; }
+
+  .section-hd { font-size: 13px; font-weight: 700; color: var(--t2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; margin-top: 24px; display: flex; align-items: center; gap: 8px; }
+  .section-hd::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .info-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .ic { background: var(--bg3); border: 1px solid var(--border); border-radius: 16px; padding: 14px 10px; text-align: center; }
+  .ic-num { font-size: 22px; font-weight: 900; color: var(--pl); }
+  .ic-label { font-size: 11px; color: var(--t2); margin-top: 4px; }
+
+  /* NUMEROS */
+  .num-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 18px; padding: 18px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s; }
+  .num-card:hover { border-color: rgba(168,85,247,0.4); box-shadow: 0 4px 20px rgba(124,58,237,0.15); }
+  .num-icon { width: 48px; height: 48px; background: linear-gradient(135deg, var(--p), var(--pl)); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-right: 14px; flex-shrink: 0; }
+  .num-info { flex: 1; }
+  .num-info .num { font-size: 17px; font-weight: 800; letter-spacing: 0.5px; }
+  .num-info .pays { font-size: 13px; color: var(--t2); margin-top: 3px; }
+  .num-info .prix { font-size: 16px; color: var(--gold); font-weight: 800; margin-top: 4px; }
+  .btn-buy { background: linear-gradient(135deg, var(--p), var(--pl)); border: none; border-radius: 12px; padding: 11px 20px; color: white; font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(124,58,237,0.35); white-space: nowrap; }
+  .btn-buy:hover { transform: scale(1.05); }
+
+  .empty { text-align: center; padding: 56px 20px; }
+  .empty-icon { font-size: 56px; margin-bottom: 14px; opacity: 0.5; }
+  .empty p { color: var(--t2); font-size: 15px; }
+
+  /* COMPTE */
+  .profile-hero { background: linear-gradient(135deg, #1a0a3f, #0f0f2e); border: 1px solid rgba(168,85,247,0.2); border-radius: 22px; padding: 22px; margin-bottom: 16px; display: flex; align-items: center; gap: 16px; }
+  .big-av { width: 68px; height: 68px; background: linear-gradient(135deg, var(--p), var(--pl)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; box-shadow: 0 0 20px rgba(124,58,237,0.5); }
+  .profile-hero h3 { font-size: 20px; font-weight: 800; }
+  .profile-hero p { font-size: 13px; color: var(--t2); margin-top: 3px; }
+
+  .solde-hero { background: linear-gradient(135deg, #1c1000, #2a1800); border: 1px solid rgba(251,191,36,0.25); border-radius: 22px; padding: 20px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+  .solde-hero .lbl { font-size: 13px; color: var(--t2); }
+  .solde-hero .amt { font-size: 30px; font-weight: 900; color: var(--gold); }
+  .btn-dep-sm { background: linear-gradient(135deg, #0e7490, var(--wave)); border: none; border-radius: 12px; padding: 12px 18px; color: white; font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap; box-shadow: 0 4px 15px rgba(6,182,212,0.3); }
+
+  .hist-item { background: var(--bg3); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+  .hist-item .hi { }
+  .hist-item .hi p { font-size: 14px; font-weight: 700; }
+  .hist-item .hi span { font-size: 12px; color: var(--t2); }
+  .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+  .badge.ok { background: rgba(34,197,94,0.12); color: var(--ok); border: 1px solid rgba(34,197,94,0.25); }
+  .badge.err { background: rgba(239,68,68,0.12); color: var(--err); border: 1px solid rgba(239,68,68,0.25); }
+  .badge.pend { background: rgba(245,158,11,0.12); color: var(--warn); border: 1px solid rgba(245,158,11,0.25); }
+
+  .btn-out { width: 100%; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 14px; padding: 15px; color: var(--err); font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 20px; transition: all 0.2s; }
+  .btn-out:hover { background: rgba(239,68,68,0.15); }
+
+  /* DEPOT */
+  .steps-bar { display: flex; gap: 8px; margin-bottom: 28px; }
+  .sdot { flex: 1; height: 5px; border-radius: 5px; background: var(--border); transition: all 0.4s; }
+  .sdot.on { background: linear-gradient(90deg, var(--p), var(--pl)); box-shadow: 0 0 8px rgba(168,85,247,0.5); }
+  .sdot.done { background: var(--ok); }
+
+  .step-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 22px; padding: 24px; animation: slideUp 0.3s ease; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+  .step-box h3 { font-size: 17px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .snum { background: linear-gradient(135deg, var(--p), var(--pl)); color: white; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; flex-shrink: 0; }
+
+  .big-inp { width: 100%; background: var(--bg2); border: 2px solid var(--border); border-radius: 16px; padding: 20px; color: var(--gold); font-size: 32px; font-weight: 900; outline: none; text-align: center; transition: all 0.2s; }
+  .big-inp:focus { border-color: var(--pl); box-shadow: 0 0 0 4px rgba(168,85,247,0.15); }
+  .big-inp::placeholder { color: #333355; font-size: 20px; font-weight: 400; }
+
+  .wave-box { background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(6,182,212,0.05)); border: 1.5px solid rgba(6,182,212,0.3); border-radius: 18px; padding: 24px; text-align: center; }
+  .wave-box .wicon { font-size: 40px; margin-bottom: 12px; }
+  .wave-box .wnum { font-size: 28px; font-weight: 900; color: var(--wave); letter-spacing: 3px; }
+  .wave-box .wname { font-size: 15px; color: var(--t2); margin-top: 6px; }
+  .wave-box .wamt { font-size: 20px; font-weight: 800; color: var(--gold); margin-top: 10px; }
+
+  .copy-tip { display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--t2); font-size: 13px; margin-top: 14px; cursor: pointer; transition: color 0.2s; }
+  .copy-tip:hover { color: var(--wave); }
+
+  .wave-only { display: flex; align-items: center; gap: 14px; background: rgba(6,182,212,0.08); border: 2px solid rgba(6,182,212,0.3); border-radius: 16px; padding: 18px; }
+  .wave-only .wcheck { margin-left: auto; font-size: 22px; }
+
+  .confirm-box { background: linear-gradient(135deg, rgba(34,197,94,0.08), transparent); border: 1px solid rgba(34,197,94,0.2); border-radius: 16px; padding: 18px; text-align: center; margin-bottom: 16px; }
+  .confirm-box p { color: var(--t2); font-size: 14px; margin-bottom: 6px; }
+  .confirm-box .camount { font-size: 26px; font-weight: 900; color: var(--ok); }
+
+  /* ADMIN */
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px; }
+  .sc { background: var(--bg3); border: 1px solid var(--border); border-radius: 18px; padding: 18px; text-align: center; position: relative; overflow: hidden; }
+  .sc::before { content: ''; position: absolute; top: -20px; right: -20px; width: 70px; height: 70px; border-radius: 50%; opacity: 0.1; }
+  .sc.s1::before { background: var(--pl); }
+  .sc.s2::before { background: var(--ok); }
+  .sc.s3::before { background: var(--gold); }
+  .sc.s4::before { background: var(--wave); }
+  .sc-icon { font-size: 30px; margin-bottom: 10px; }
+  .sc-num { font-size: 28px; font-weight: 900; }
+  .sc.s1 .sc-num { color: var(--pl); }
+  .sc.s2 .sc-num { color: var(--ok); }
+  .sc.s3 .sc-num { color: var(--gold); }
+  .sc.s4 .sc-num { color: var(--wave); }
+  .sc-lbl { font-size: 12px; color: var(--t2); margin-top: 4px; }
+
+  .admin-form { background: var(--bg3); border: 1px solid var(--border); border-radius: 22px; padding: 22px; margin-bottom: 22px; }
+  .admin-form h3 { font-size: 16px; font-weight: 800; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+  .row2 { display: flex; gap: 12px; }
+  .row2 .inp-wrap { flex: 1; }
+
+  .dep-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 18px; padding: 18px; margin-bottom: 12px; }
+  .dep-card .dc-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .dep-av { width: 44px; height: 44px; background: linear-gradient(135deg, var(--p), var(--pl)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .dep-card .dc-name { font-size: 16px; font-weight: 800; }
+  .dep-card .dc-detail { font-size: 13px; color: var(--t2); }
+  .dep-card .dc-amount { font-size: 22px; font-weight: 900; color: var(--gold); margin-left: auto; }
+  .dep-actions { display: flex; gap: 10px; }
+  .btn-ok { flex: 1; background: rgba(34,197,94,0.1); border: 1.5px solid rgba(34,197,94,0.4); border-radius: 12px; padding: 12px; color: var(--ok); font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.2s; }
+  .btn-ok:hover { background: rgba(34,197,94,0.2); }
+  .btn-no { flex: 1; background: rgba(239,68,68,0.08); border: 1.5px solid rgba(239,68,68,0.3); border-radius: 12px; padding: 12px; color: var(--err); font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.2s; }
+  .btn-no:hover { background: rgba(239,68,68,0.18); }
+
+  .an { background: var(--bg3); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+  .btn-del { background: none; border: none; color: var(--err); font-size: 20px; cursor: pointer; padding: 4px 6px; }
+
+  .usr-row { background: var(--bg3); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+
+  /* TOAST */
+  .toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1.5px solid var(--border); border-radius: 16px; padding: 14px 24px; font-size: 14px; font-weight: 700; z-index: 999; animation: toastIn 0.3s ease; white-space: nowrap; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+  .toast.ok { border-color: var(--ok); color: var(--ok); }
+  .toast.err { border-color: var(--err); color: var(--err); }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-12px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+  .page-title { font-size: 24px; font-weight: 900; margin-bottom: 22px; }
+`;
+
+// Storage
+const S = {
+  g: (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  s: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+};
+
+const init = () => {
+  if (!S.g("dss_users")) S.s("dss_users", [{ id: "admin", prenom: "Admin", nom: "", email: "admin@devshadow.com", tel: "776227173", password: "admin123", isAdmin: true, solde: 0 }]);
+  if (!S.g("dss_nums")) S.s("dss_nums", []);
+  if (!S.g("dss_deps")) S.s("dss_deps", []);
+  if (!S.g("dss_achats")) S.s("dss_achats", []);
+};
+
+const fmtF = n => `${Number(n).toLocaleString("fr-FR")} FCFA`;
+
+function Toast({ msg, type, onClose }) {
+  useEffect(() => { const t = setTimeout(onClose, 3000); return () => clearTimeout(t); }, []);
+  return <div className={`toast ${type}`}>{msg}</div>;
+}
+
+function Particles() {
+  const dots = Array.from({ length: 12 }, (_, i) => ({
+    id: i,
+    size: Math.random() * 6 + 3,
+    left: Math.random() * 100,
+    duration: Math.random() * 15 + 10,
+    delay: Math.random() * 10,
+    color: i % 3 === 0 ? "#7c3aed" : i % 3 === 1 ? "#fbbf24" : "#06b6d4",
+  }));
+  return (
+    <div className="particles">
+      {dots.map(d => (
+        <div key={d.id} className="particle" style={{ width: d.size, height: d.size, left: `${d.left}%`, background: d.color, animationDuration: `${d.duration}s`, animationDelay: `${d.delay}s` }} />
+      ))}
+    </div>
+  );
+}
+
+// AUTH
+function Auth({ onLogin }) {
+  const [tab, setTab] = useState("co");
+  const [f, setF] = useState({ prenom: "", nom: "", email: "", tel: "", pw: "", pw2: "" });
+  const [toast, setToast] = useState(null);
+  const T = (msg, type = "ok") => setToast({ msg, type });
+
+  const login = () => {
+    const users = S.g("dss_users") || [];
+    const u = users.find(x => x.email === f.email && x.password === f.pw);
+    if (!u) return T("Email ou mot de passe incorrect", "err");
+    onLogin(u);
+  };
+
+  const register = () => {
+    if (!f.prenom || !f.email || !f.pw) return T("Remplissez tous les champs", "err");
+    if (f.pw !== f.pw2) return T("Mots de passe différents", "err");
+    const users = S.g("dss_users") || [];
+    if (users.find(u => u.email === f.email)) return T("Email déjà utilisé", "err");
+    S.s("dss_users", [...users, { id: Date.now().toString(), prenom: f.prenom, nom: f.nom, email: f.email, tel: f.tel, password: f.pw, isAdmin: false, solde: 0 }]);
+    T("Compte créé ! Connectez-vous ✅");
+    setTab("co");
+  };
+
+  return (
+    <div className="auth">
+      <Particles />
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
+      <div className="auth-logo">
+        <div className="glow">📱</div>
+        <h1>DEV SHADOW SMS</h1>
+        <p>NUMÉROS VIRTUELS PREMIUM</p>
+      </div>
+      <div className="auth-card">
+        <div className="auth-tabs">
+          <button className={`auth-tab ${tab === "co" ? "active" : ""}`} onClick={() => setTab("co")}>Connexion</button>
+          <button className={`auth-tab ${tab === "in" ? "active" : ""}`} onClick={() => setTab("in")}>Inscription</button>
+        </div>
+        {tab === "co" ? (
+          <>
+            <div className="inp-wrap"><label>Email</label><input type="email" placeholder="votre@email.com" value={f.email} onChange={e => setF({ ...f, email: e.target.value })} /></div>
+            <div className="inp-wrap"><label>Mot de passe</label><input type="password" placeholder="••••••••" value={f.pw} onChange={e => setF({ ...f, pw: e.target.value })} /></div>
+            <button className="btn-main" onClick={login}>🔓 Se connecter</button>
+          </>
+        ) : (
+          <>
+            <div style={{ display: "flex", gap: 10 }}>
+              <div className="inp-wrap" style={{ flex: 1 }}><label>Prénom</label><input placeholder="Prénom" value={f.prenom} onChange={e => setF({ ...f, prenom: e.target.value })} /></div>
+              <div className="inp-wrap" style={{ flex: 1 }}><label>Nom</label><input placeholder="Nom" value={f.nom} onChange={e => setF({ ...f, nom: e.target.value })} /></div>
+            </div>
+            <div className="inp-wrap"><label>Email</label><input type="email" placeholder="votre@email.com" value={f.email} onChange={e => setF({ ...f, email: e.target.value })} /></div>
+            <div className="inp-wrap"><label>Téléphone</label><input placeholder="+221 XX XXX XX XX" value={f.tel} onChange={e => setF({ ...f, tel: e.target.value })} /></div>
+            <div className="inp-wrap"><label>Mot de passe</label><input type="password" placeholder="••••••••" value={f.pw} onChange={e => setF({ ...f, pw: e.target.value })} /></div>
+            <div className="inp-wrap"><label>Confirmer</label><input type="password" placeholder="••••••••" value={f.pw2} onChange={e => setF({ ...f, pw2: e.target.value })} /></div>
+            <button className="btn-main" onClick={register}>✅ S'inscrire</button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ACCUEIL
+function Accueil({ user, setPage }) {
+  const greet = () => { const h = new Date().getHours(); return h < 12 ? "Bonjour ☀️" : h < 18 ? "Bon après-midi 🌤️" : "Bonsoir 🌙"; };
+  const nums = S.g("dss_nums") || [];
+  const ventes = S.g("dss_achats") || [];
+  const users = S.g("dss_users") || [];
+
+  return (
+    <div className="content">
+      <div className="hero">
+        <p className="hero-greet">{greet()}</p>
+        <p className="hero-name">{user.prenom} {user.nom} 👋</p>
+        <p className="hero-solde-label">Votre solde</p>
+        <p className="hero-amount">{Number(user.solde).toLocaleString("fr-FR")} <span className="hero-currency">FCFA</span></p>
+        <div className="hero-badge">✅ Compte actif</div>
+      </div>
+
+      <div className="quick-actions">
+        <div className="qa" onClick={() => setPage("depot")}>
+          <div className="qa-icon">💸</div>
+          <div className="qa-label">Faire un dépôt</div>
+          <div className="qa-sub">Via Wave</div>
+        </div>
+        <div className="qa" onClick={() => setPage("numeros")}>
+          <div className="qa-icon">📱</div>
+          <div className="qa-label">Acheter un numéro</div>
+          <div className="qa-sub">{nums.length} disponibles</div>
+        </div>
+      </div>
+
+      <div className="section-hd">Statistiques</div>
+      <div className="info-cards">
+        <div className="ic"><div className="ic-num">{nums.length}</div><div className="ic-label">Numéros dispo</div></div>
+        <div className="ic"><div className="ic-num">{users.length}</div><div className="ic-label">Membres</div></div>
+        <div className="ic"><div className="ic-num">{ventes.length}</div><div className="ic-label">Ventes</div></div>
+      </div>
+    </div>
+  );
+}
+
+// NUMEROS
+function Numeros({ user, onUpdate, toast }) {
+  const [nums, setNums] = useState([]);
+  useEffect(() => setNums(S.g("dss_nums") || []), []);
+
+  const buy = (n) => {
+    if (user.solde < n.prix) return toast("Solde insuffisant 💸", "err");
+    const users = S.g("dss_users") || [];
+    const updated = users.map(u => u.id === user.id ? { ...u, solde: u.solde - n.prix } : u);
+    S.s("dss_users", updated);
+    const newNums = nums.filter(x => x.id !== n.id);
+    S.s("dss_nums", newNums);
+    S.s("dss_achats", [...(S.g("dss_achats") || []), { userId: user.id, numero: n.numero, prix: n.prix, pays: n.pays, date: new Date().toLocaleDateString("fr-FR") }]);
+    setNums(newNums);
+    onUpdate({ ...user, solde: user.solde - n.prix });
+    toast(`✅ Numéro ${n.numero} acheté !`);
+  };
+
+  return (
+    <div className="content">
+      <h2 className="page-title">📱 Numéros disponibles</h2>
+      {nums.length === 0 ? (
+        <div className="empty"><div className="empty-icon">📭</div><p>Aucun numéro disponible<br />pour le moment</p></div>
+      ) : nums.map(n => (
+        <div key={n.id} className="num-card">
+          <div className="num-icon">📱</div>
+          <div className="num-info">
+            <p className="num">{n.numero}</p>
+            <p className="pays">🌍 {n.pays}</p>
+            <p className="prix">{fmtF(n.prix)}</p>
+          </div>
+          <button className="btn-buy" onClick={() => buy(n)}>Acheter</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// DEPOT 4 étapes
+function Depot({ user, onBack, toast }) {
+  const [step, setStep] = useState(1);
+  const [montant, setMontant] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const copy = () => { navigator.clipboard?.writeText("776227173"); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+
+  const envoyer = () => {
+    if (!montant || Number(montant) < 100) return toast("Montant invalide", "err");
+    S.s("dss_deps", [...(S.g("dss_deps") || []), { id: Date.now().toString(), userId: user.id, prenom: user.prenom, nom: user.nom, montant: Number(montant), date: new Date().toLocaleDateString("fr-FR"), status: "pending" }]);
+    toast("✅ Demande envoyée ! En attente de validation");
+    onBack();
+  };
+
+  return (
+    <div className="content">
+      <h2 className="page-title">💰 Faire un dépôt</h2>
+      <div className="steps-bar">
+        {[1,2,3,4].map(s => <div key={s} className={`sdot ${step > s ? "done" : step === s ? "on" : ""}`} />)}
+      </div>
+
+      {step === 1 && (
+        <div className="step-box">
+          <h3><span className="snum">1</span> Entrez le montant</h3>
+          <input className="big-inp" type="number" placeholder="0" value={montant} onChange={e => setMontant(e.target.value)} />
+          <p style={{ textAlign: "center", color: "var(--t2)", fontSize: 13, marginTop: 10 }}>Minimum : 100 FCFA</p>
+          <button className="btn-main" style={{ marginTop: 20 }} onClick={() => { if (!montant || Number(montant) < 100) return toast("Montant invalide", "err"); setStep(2); }}>Suivant →</button>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="step-box">
+          <h3><span className="snum">2</span> Moyen de paiement</h3>
+          <div className="wave-only">
+            <span style={{ fontSize: 32 }}>🔵</span>
+            <div><p style={{ fontWeight: 800, fontSize: 16 }}>Wave</p><p style={{ color: "var(--t2)", fontSize: 13 }}>Paiement mobile instantané</p></div>
+            <span className="wcheck">✅</span>
+          </div>
+          <button className="btn-main" style={{ marginTop: 20 }} onClick={() => setStep(3)}>Suivant →</button>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="step-box">
+          <h3><span className="snum">3</span> Envoyez l'argent</h3>
+          <div className="wave-box">
+            <div className="wicon">🔵</div>
+            <p style={{ color: "var(--t2)", fontSize: 13, marginBottom: 10 }}>Envoyez via Wave au numéro :</p>
+            <p className="wnum">776 22 71 73</p>
+            <p className="wname">Nom : DEV SHADOW</p>
+            <p className="wamt">{fmtF(montant)}</p>
+          </div>
+          <div className="copy-tip" onClick={copy}>
+            <span>{copied ? "✅ Copié !" : "📋 Appuyez pour copier le numéro"}</span>
+          </div>
+          <button className="btn-main" style={{ marginTop: 20 }} onClick={() => setStep(4)}>J'ai envoyé ✅</button>
+        </div>
+      )}
+
+      {step === 4 && (
+        <div className="step-box">
+          <h3><span className="snum">4</span> Confirmer la demande</h3>
+          <div className="confirm-box">
+            <p>Montant envoyé</p>
+            <p className="camount">{fmtF(montant)}</p>
+            <p style={{ marginTop: 8, color: "var(--t2)", fontSize: 13 }}>Via Wave → 776 22 71 73 (DEV SHADOW)</p>
+          </div>
+          <p style={{ color: "var(--t2)", fontSize: 13, textAlign: "center", marginBottom: 16 }}>⏳ Votre solde sera crédité après validation par l'admin</p>
+          <button className="btn-main" onClick={envoyer}>📤 Envoyer ma demande</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// COMPTE
+function Compte({ user, onLogout, setPage }) {
+  const achats = (S.g("dss_achats") || []).filter(a => a.userId === user.id);
+  const deps = (S.g("dss_deps") || []).filter(d => d.userId === user.id);
+
+  return (
+    <div className="content">
+      <div className="profile-hero">
+        <div className="big-av">👤</div>
+        <div>
+          <h3>{user.prenom} {user.nom}</h3>
+          <p>{user.email}</p>
+          {user.tel && <p>{user.tel}</p>}
+        </div>
+      </div>
+
+      <div className="solde-hero">
+        <div><p className="lbl">💰 Mon solde</p><p className="amt">{Number(user.solde).toLocaleString("fr-FR")} FCFA</p></div>
+        <button className="btn-dep-sm" onClick={() => setPage("depot")}>+ Dépôt</button>
+      </div>
+
+      <div className="section-hd">Mes numéros achetés</div>
+      {achats.length === 0 ? <div className="empty" style={{ padding: "24px 0" }}><div className="empty-icon" style={{ fontSize: 36 }}>📭</div><p>Aucun achat</p></div>
+        : achats.map((a, i) => (
+          <div key={i} className="hist-item">
+            <div className="hi"><p>{a.numero}</p><span>{a.pays} • {a.date}</span></div>
+            <span style={{ color: "var(--gold)", fontWeight: 800 }}>{fmtF(a.prix)}</span>
+          </div>
+        ))}
+
+      <div className="section-hd">Historique dépôts</div>
+      {deps.length === 0 ? <div className="empty" style={{ padding: "24px 0" }}><div className="empty-icon" style={{ fontSize: 36 }}>📋</div><p>Aucun dépôt</p></div>
+        : deps.map((d, i) => (
+          <div key={i} className="hist-item">
+            <div className="hi"><p>{fmtF(d.montant)}</p><span>{d.date}</span></div>
+            <span className={`badge ${d.status === "accepted" ? "ok" : d.status === "refused" ? "err" : "pend"}`}>
+              {d.status === "accepted" ? "✅ Accepté" : d.status === "refused" ? "❌ Refusé" : "⏳ En attente"}
+            </span>
+          </div>
+        ))}
+
+      <button className="btn-out" onClick={onLogout}>🚪 Se déconnecter</button>
+    </div>
+  );
+}
+
+// ADMIN
+function Admin({ toast, currentUser, onUpdate }) {
+  const [nums, setNums] = useState([]);
+  const [deps, setDeps] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [f, setF] = useState({ numero: "", prix: "", pays: "" });
+
+  const refresh = () => {
+    setNums(S.g("dss_nums") || []);
+    setDeps((S.g("dss_deps") || []).filter(d => d.status === "pending"));
+    setUsers((S.g("dss_users") || []).filter(u => !u.isAdmin));
+  };
+
+  useEffect(() => { refresh(); }, []);
+
+  const addNum = () => {
+    if (!f.numero || !f.prix || !f.pays) return toast("Remplissez tous les champs", "err");
+    const n = [...nums, { id: Date.now().toString(), numero: f.numero, prix: Number(f.prix), pays: f.pays }];
+    S.s("dss_nums", n); setNums(n); setF({ numero: "", prix: "", pays: "" });
+    toast("✅ Numéro ajouté !");
+  };
+
+  const delNum = (id) => { const n = nums.filter(x => x.id !== id); S.s("dss_nums", n); setNums(n); toast("🗑️ Numéro supprimé"); };
+
+  const handle = (dep, action) => {
+    const all = S.g("dss_deps") || [];
+    S.s("dss_deps", all.map(d => d.id === dep.id ? { ...d, status: action } : d));
+    if (action === "accepted") {
+      const us = S.g("dss_users") || [];
+      S.s("dss_users", us.map(u => u.id === dep.userId ? { ...u, solde: u.solde + dep.montant } : u));
+      if (currentUser.id === dep.userId) onUpdate({ ...currentUser, solde: currentUser.solde + dep.montant });
+    }
+    setDeps(deps.filter(d => d.id !== dep.id));
+    toast(action === "accepted" ? "✅ Dépôt accepté ! Solde crédité" : "❌ Dépôt refusé");
+  };
+
+  const allDeps = S.g("dss_deps") || [];
+  const totalDeps = allDeps.filter(d => d.status === "accepted").reduce((s, d) => s + d.montant, 0);
+
+  return (
+    <div className="content">
+      <h2 className="page-title">⚙️ Administration</h2>
+
+      <div className="stat-grid">
+        <div className="sc s1"><div className="sc-icon">📱</div><div className="sc-num">{nums.length}</div><div className="sc-lbl">Numéros</div></div>
+        <div className="sc s2"><div className="sc-icon">👥</div><div className="sc-num">{users.length}</div><div className="sc-lbl">Membres</div></div>
+        <div className="sc s3"><div className="sc-icon">✅</div><div className="sc-num">{(S.g("dss_achats") || []).length}</div><div className="sc-lbl">Ventes</div></div>
+        <div className="sc s4"><div className="sc-icon">💰</div><div className="sc-num">{(totalDeps/1000).toFixed(0)}k</div><div className="sc-lbl">Dépôts FCFA</div></div>
+      </div>
+
+      <div className="admin-form">
+        <h3>➕ Ajouter un numéro</h3>
+        <div className="inp-wrap"><label>Numéro</label><input placeholder="+221 77 XXX XX XX" value={f.numero} onChange={e => setF({ ...f, numero: e.target.value })} /></div>
+        <div className="row2">
+          <div className="inp-wrap"><label>Prix (FCFA)</label><input type="number" placeholder="5000" value={f.prix} onChange={e => setF({ ...f, prix: e.target.value })} /></div>
+          <div className="inp-wrap"><label>Pays</label><input placeholder="Sénégal" value={f.pays} onChange={e => setF({ ...f, pays: e.target.value })} /></div>
+        </div>
+        <button className="btn-main" style={{ marginTop: 14 }} onClick={addNum}>➕ Ajouter le numéro</button>
+      </div>
+
+      {nums.length > 0 && <>
+        <div className="section-hd">Numéros en ligne ({nums.length})</div>
+        {nums.map(n => (
+          <div key={n.id} className="an">
+            <div><p style={{ fontWeight: 800 }}>{n.numero}</p><p style={{ color: "var(--t2)", fontSize: 13 }}>{n.pays} • {fmtF(n.prix)}</p></div>
+            <button className="btn-del" onClick={() => delNum(n.id)}>🗑️</button>
+          </div>
+        ))}
+      </>}
+
+      <div className="section-hd">Dépôts en attente {deps.length > 0 && <span style={{ background: "var(--err)", color: "white", borderRadius: "50%", width: 20, height: 20, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900 }}>{deps.length}</span>}</div>
+      {deps.length === 0 ? <div className="empty" style={{ padding: "24px 0" }}><div className="empty-icon" style={{ fontSize: 36 }}>✅</div><p>Aucun dépôt en attente</p></div>
+        : deps.map(d => (
+          <div key={d.id} className="dep-card">
+            <div className="dc-top">
+              <div className="dep-av">👤</div>
+              <div>
+                <p className="dc-name">{d.prenom} {d.nom}</p>
+                <p className="dc-detail">📅 {d.date} • 🔵 Wave</p>
+              </div>
+              <p className="dc-amount">{fmtF(d.montant)}</p>
+            </div>
+            <div className="dep-actions">
+              <button className="btn-ok" onClick={() => handle(d, "accepted")}>✅ Accepter</button>
+              <button className="btn-no" onClick={() => handle(d, "refused")}>❌ Refuser</button>
+            </div>
+          </div>
+        ))}
+
+      <div className="section-hd">Utilisateurs ({users.length})</div>
+      {users.map(u => (
+        <div key={u.id} className="usr-row">
+          <div><p style={{ fontWeight: 700 }}>{u.prenom} {u.nom}</p><p style={{ color: "var(--t2)", fontSize: 13 }}>{u.email}</p></div>
+          <span style={{ color: "var(--gold)", fontWeight: 800 }}>{fmtF(u.solde)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// APP
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [page, setPage] = useState("accueil");
+  const [toast, setToast] = useState(null);
+
+  useEffect(() => { init(); }, []);
+
+  const showToast = (msg, type = "ok") => { setToast({ msg, type }); setTimeout(() => setToast(null), 3000); };
+  const logout = () => { setUser(null); setPage("accueil"); };
+  const update = (u) => { setUser(u); };
+
+  if (!user) return <><style>{styles}</style><div className="app"><Auth onLogin={u => { setUser(u); setPage("accueil"); }} /></div></>;
+
+  return (
+    <>
+      <style>{styles}</style>
+      <div className="app">
+        <Particles />
+        {toast && <Toast {...toast} onClose={() => setToast(null)} />}
+
+        <div className="header">
+          <div>
+            <p className="hlogo">📱 DEV SHADOW SMS</p>
+            <p className="hsolde">Solde : <b>{Number(user.solde).toLocaleString("fr-FR")} FCFA</b></p>
+          </div>
+          <div className="havatar">👤</div>
+        </div>
+
+        {page === "accueil" && <Accueil user={user} setPage={setPage} />}
+        {page === "numeros" && <Numeros user={user} onUpdate={update} toast={showToast} />}
+        {page === "compte" && <Compte user={user} onLogout={logout} setPage={setPage} />}
+        {page === "depot" && <Depot user={user} onBack={() => setPage("compte")} toast={showToast} />}
+        {page === "admin" && user.isAdmin && <Admin toast={showToast} currentUser={user} onUpdate={update} />}
+
+        <div className="nav">
+          {[
+            { id: "accueil", icon: "🏠", label: "Accueil" },
+            { id: "numeros", icon: "📱", label: "Numéros" },
+            { id: "compte", icon: "👤", label: "Compte" },
+            ...(user.isAdmin ? [{ id: "admin", icon: "⚙️", label: "Admin" }] : []),
+          ].map(n => (
+            <div key={n.id} className={`ni ${page === n.id || (page === "depot" && n.id === "compte") ? "active" : ""}`} onClick={() => setPage(n.id)}>
+              {page === n.id && <div className="ni-dot" />}
+              <span className="ni-icon">{n.icon}</span>
+              <span className="ni-label">{n.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
