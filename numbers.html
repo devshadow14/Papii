@@ -1,0 +1,25 @@
+<div class="container">
+
+<h2>Numéros</h2>
+
+<div class="card">Google - 250 FCFA</div>
+<button onclick="buy(250)">Acheter</button>
+
+<div class="card">WhatsApp - 300 FCFA</div>
+<button onclick="buy(300)">Acheter</button>
+
+</div>
+
+<script>
+function buy(price){
+    let solde = parseInt(localStorage.getItem("solde"));
+
+    if(solde < price){
+        alert("Solde insuffisant");
+        window.location.href="deposit.html";
+    } else {
+        localStorage.setItem("solde", solde - price);
+        window.location.href="https://wa.me/221776227173?text=Commande%20payée";
+    }
+}
+</script>
