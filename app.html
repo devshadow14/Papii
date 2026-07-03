@@ -1,0 +1,19 @@
+<div class="container">
+
+<h2>Accueil</h2>
+
+<div class="card">
+💰 Solde: <span id="solde"></span> FCFA
+</div>
+
+<button onclick="location.href='deposit.html'">💳 Dépôt</button>
+<button onclick="location.href='numbers.html'">📱 Numéros</button>
+<button onclick="location.href='help.html'">❓ Aide</button>
+<button onclick="location.href='account.html'">👤 Compte</button>
+
+</div>
+
+<script>
+document.getElementById("solde").innerText =
+localStorage.getItem("solde") || 0;
+</script>
