@@ -14,6 +14,7 @@ const {
 const pino = require('pino')
 const fs = require('fs')
 const path = require('path')
+const { handleMessages, handleGroupParticipantUpdate, handleStatus } = require('./main')
 
 // Sessions actives en mémoire : telegramUserId -> socket Baileys
 const activeSessions = new Map()
@@ -58,6 +59,32 @@ async function startPairingSession(telegramUserId, phoneNumber, telegramBot, tel
             return sock
         }
     }
+
+    // Traitement des messages entrants (commandes .menu, .sticker, .ban, etc. définies dans main.js)
+    sock.ev.on('messages.upsert', async (chatUpdate) => {
+        try {
+            const mek = chatUpdate.messages[0]
+            if (!mek?.message) return
+            mek.message = (Object.keys(mek.message)[0] === 'ephemeralMessage')
+                ? mek.message.ephemeralMessage.message
+                : mek.message
+            if (mek.key?.remoteJid === 'status@broadcast') {
+                await handleStatus(sock, chatUpdate)
+                return
+            }
+            await handleMessages(sock, chatUpdate, true)
+        } catch (err) {
+            console.error(`Erreur handleMessages (session ${telegramUserId}) :`, err)
+        }
+    })
+
+    sock.ev.on('group-participants.update', async (update) => {
+        try {
+            await handleGroupParticipantUpdate(sock, update)
+        } catch (err) {
+            console.error(`Erreur handleGroupParticipantUpdate (session ${telegramUserId}) :`, err)
+        }
+    })
 
     sock.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect } = update
