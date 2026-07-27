@@ -1,3 +1,0 @@
-/**
-* cfgiyyj
-* uuik
