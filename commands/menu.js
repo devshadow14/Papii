@@ -17,9 +17,9 @@ async function menuCommand(sock, chatId, message) {
 let botMode = settings.self === true ? 'PRIVÉ' : 'PUBLIC';
     // Message du menu
     const helpMessage = `
- ▛▀▜ ✦ 🩸AKATSUKI–MD•V3🩸 ✦ ▙▀▟
+ ▛▀▜ ✦ 🩸DEV SHADOW–MD•V1.0🩸 ✦ ▙▀▟
 ╔──────────────────╗
-│ • BOT ID   : AKATSUKI MD  
+│ • BOT ID   : DEV SHADOW MD  
 │ • VERSION  : 3.0.1  
 │ • DEV      : SHADOW TECH™  
 │ • USER     : ${userName}  
