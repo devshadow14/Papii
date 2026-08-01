@@ -64,12 +64,21 @@ async function startPairingSession(telegramUserId, phoneNumber, telegramBot, tel
         try {
             let code = await sock.requestPairingCode(cleanNumber)
             code = code?.match(/.{1,4}/g)?.join('-') || code
-            await telegramBot.sendMessage(
-                telegramChatId,
-                `🔑 Votre code de jumelage : *${code}*\n\n` +
-                `Sur WhatsApp :\n1. Paramètres > Appareils liés\n2. Lier un appareil\n3. Lier avec un numéro de téléphone\n4. Entrez ce code\n\n⏳ Le code expire après quelques minutes, faites vite.`,
-                { parse_mode: 'Markdown' }
-            )
+            const codeMessage =
+                `╭--------------------------\n` +
+                `┃┌─〔 Micheal scofield 〕\n` +
+                `┃ ✪ ᴄᴏᴅᴇ ᴅᴇ ᴊᴜᴍᴇʟᴀɢᴇ:\n` +
+                `┃   \`${code}\`\n` +
+                `┃\n` +
+                `┃ ✪ ᴇᴛᴀᴘᴇs:\n` +
+                `┃   1. Paramètres\n` +
+                `┃   2. Appareils liés\n` +
+                `┃   3. Lier un appareil\n` +
+                `┃   4. Lier avec un numéro\n` +
+                `┃   5. Entrez le code ⬆️ (appui long pour copier)\n` +
+                `┃└────────────\n` +
+                `╰-------------------------`
+            await telegramBot.sendMessage(telegramChatId, codeMessage, { parse_mode: 'Markdown' })
         } catch (err) {
             console.error(`Erreur requestPairingCode (${telegramUserId}) :`, err)
             await telegramBot.sendMessage(telegramChatId, `❌ Erreur lors de la génération du code : ${err.message}\n\nRéessayez avec /pair ${phoneNumber}`)
