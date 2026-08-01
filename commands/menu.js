@@ -6,28 +6,42 @@ async function menuCommand(sock, chatId, message) {
 
     const userName = message.pushName || "Utilisateur";
 
-    // Animation typing
+    // Loading animé avec compteur en pourcentage
     try {
         await sock.sendPresenceUpdate('composing', chatId);
-        await sock.sendMessage(chatId, { text: "⏳ *∘̥⃟☠️𓊈𝐄𝐌𝐏𝐈𝐑𝐄『AKATSUKI』𓊉☠️ ∘̥⃟ THE BEST🏆 Loading menu…*" });
-        await new Promise(resolve => setTimeout(resolve, 1800));
+        const loadingMsg = await sock.sendMessage(chatId, {
+            text: "⏳ *∘̥⃟👽𓊈𝐌𝐈𝐂𝐇𝐄𝐀𝐋 𝐒𝐂𝐎𝐅𝐈𝐄𝐋𝐃 𝐌𝐃𓊉👽 ∘̥⃟ Loading menu... 0%*"
+        });
+
+        const steps = [20, 45, 70, 90, 100];
+        for (const percent of steps) {
+            await new Promise(resolve => setTimeout(resolve, 250));
+            await sock.sendMessage(chatId, {
+                text: `⏳ *∘̥⃟👽𓊈𝐌𝐈𝐂𝐇𝐄𝐀𝐋 𝐒𝐂𝐎𝐅𝐈𝐄𝐋𝐃 𝐌𝐃𓊉👽 ∘̥⃟ Loading menu... ${percent}%*`,
+                edit: loadingMsg.key
+            });
+        }
+
         await sock.sendPresenceUpdate('paused', chatId);
-    } catch {}
+    } catch (e) {
+        console.error("Erreur loading menu:", e);
+    }
+
 // Détection automatique du mode (PUBLIC / PRIVÉ)
 let botMode = settings.self === true ? 'PRIVÉ' : 'PUBLIC';
     // Message du menu
     const helpMessage = `
- ▛▀▜ ✦ 🩸DEV SHADOW–MD•V1.0🩸 ✦ ▙▀▟
-╔──────────────────╗
-│ • BOT ID   : DEV SHADOW MD  
-│ • VERSION  : 3.0.1  
-│ • DEV      : SHADOW TECH™  
+ ▛▀▜ ✦𝐌𝐈𝐂𝐇𝐄𝐀𝐋 𝐒𝐂𝐎𝐅𝐈𝐄𝐋𝐃 𝐌𝐃✦ ▙▀▟
+╔────────👽─────────╗
+│ • BOT ID   : 𝐃𝐄𝐕 𝐌𝐈𝐂𝐇𝐄𝐀𝐋 𝐒𝐂𝐎𝐅𝐈𝐄𝐋𝐃 𝐌𝐃  
+│ • VERSION  : 1.0.0  
+│ • DEV      : 𝐃𝐄𝐕 𝐌𝐈𝐂𝐇𝐄𝐀𝐋 𝐒𝐂𝐎𝐅𝐈𝐄𝐋𝐃™  
 │ • USER     : ${userName}  
-│ • STATUS   : ACTIVE  
+│ • STATUS   : 🟢𝐎𝐍𝐋𝐈𝐍𝐄  
 │ • MODE     : ${botMode}  
-╚──────────────────╝
+╚────────👽─────────╝
 
-彡━━ ࿇ SYSTEM AKATSUKI ━彡
+彡━━ ⚙️ SYSTEM ━彡
 │ • .menu
 │ • .ping
 │ • .alive
@@ -110,7 +124,7 @@ let botMode = settings.self === true ? 'PRIVÉ' : 'PUBLIC';
 │ • .imagine
 ┗━━━━━━━━━━━━━━━━━━━
 
-彡━━━ 🎎 FUN MENU ━━━彡
+彡━━━ 😂 FUN MENU ━━━彡
 │ • .compliment
 │ • .insult
 │ • .flirt
@@ -152,13 +166,13 @@ let botMode = settings.self === true ? 'PRIVÉ' : 'PUBLIC';
 │ • .ytmp4
 ┗━━━━━━━━━━━━━━━━━━━
 
-彡━ INSU &COMPL MENU ━彡
+彡━ 🫩INSU &COMPL MENU ━彡
 │ • .stupid
 │ • .comrade
 │ • .gay
 ┗━━━━━━━━━━━━━━━━━━━
-│   ࿇ 𝚃𝙷𝙴 AKATSUKI 𝙲𝙻𝙰𝙽 ࿇
-│      ©  BY SHADOW TECH™  
+│   ࿇ 𝐌𝐈𝐂𝐇𝐄𝐀𝐋 𝐒𝐂𝐎𝐅𝐈𝐄𝐋𝐃 𝐌𝐃 ࿇
+│      ©  BY 𝐃𝐄𝐕 𝐌𝐈𝐂𝐇𝐄𝐀𝐋 𝐒𝐂𝐎𝐅𝐈𝐄𝐋𝐃™  
 ┗━━━━━━━━━━━━━━━━━━┛
 `;
 
@@ -177,8 +191,8 @@ let botMode = settings.self === true ? 'PRIVÉ' : 'PUBLIC';
                         forwardingScore: 1,
                         isForwarded: true,
                         forwardedNewsletterMessageInfo: {
-                            newsletterJid: "120363402057857053@newsletter",
-                            newsletterName: "🌹AKATSUKI–MD•V3🌹",
+                            newsletterJid: "",
+                            newsletterName: "MICHEAL SCOFIELD MD",
                             serverMessageId: -1
                         }
                     }
@@ -193,8 +207,8 @@ let botMode = settings.self === true ? 'PRIVÉ' : 'PUBLIC';
                     forwardingScore: 1,
                     isForwarded: true,
                     forwardedNewsletterMessageInfo: {
-                        newsletterJid: "120363402057857053@newsletter",
-                        newsletterName: "🌹AKATSUKI–MD•V3🌹",
+                        newsletterJid: "@newsletter",
+                        newsletterName: "MICHEAL SCOFIELD MD",
                         serverMessageId: -1
                     }
                 }
