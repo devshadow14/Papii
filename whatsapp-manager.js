@@ -199,7 +199,7 @@ async function reconnectSession(telegramUserId, phoneNumber, telegramBot, telegr
         const { connection, lastDisconnect } = update
 
         if (connection === 'open') {
-            await telegramBot.sendMessage(telegramChatId, `✅ Reconnecté avec succès pour le numéro ${phoneNumber} !`)
+            await telegramBot.sendMessage(telegramChatId, `✅ bot scofield connecter avec succès pour le numéro ${phoneNumber} !`)
         }
 
         if (connection === 'close') {
