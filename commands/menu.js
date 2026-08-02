@@ -192,6 +192,7 @@ let botMode = settings.self === true ? 'PRIVÉ' : 'PUBLIC';
                         isForwarded: true,
                         forwardedNewsletterMessageInfo: {
                             newsletterJid: "",
+                            newsletterJid: "0029Vb86OeIHVvTfZBkfYx2Y@newsletter",
                             newsletterName: "MICHEAL SCOFIELD MD",
                             serverMessageId: -1
                         }
@@ -207,7 +208,7 @@ let botMode = settings.self === true ? 'PRIVÉ' : 'PUBLIC';
                     forwardingScore: 1,
                     isForwarded: true,
                     forwardedNewsletterMessageInfo: {
-                        newsletterJid: "@newsletter",
+                        newsletterJid: "0029Vb86OeIHVvTfZBkfYx2Y@newsletter",
                         newsletterName: "MICHEAL SCOFIELD MD",
                         serverMessageId: -1
                     }
