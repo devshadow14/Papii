@@ -144,6 +144,19 @@ function adminPanelMessage() {
         `╰-------------------------`
 }
 
+function generatingCodeMessage(phoneNumber) {
+    return `╭--------------------------\n` +
+        `┃┌─〔 Micheal scofield 〕\n` +
+        `┃ ✪ ⏳ ɢéɴéʀᴀᴛɪᴏɴ ᴅᴜ ᴄᴏᴅᴇ\n` +
+        `┃\n` +
+        `┃ ✪ ɴᴜᴍéʀᴏ:\n` +
+        `┃   ${phoneNumber}\n` +
+        `┃\n` +
+        `┃ ✪ ᴠᴇᴜɪʟʟᴇᴢ ᴘᴀᴛɪᴇɴᴛᴇʀ...\n` +
+        `┃└────────────\n` +
+        `╰-------------------------`
+}
+
 bot.onText(/^\/admin$/, async (msg) => {
     const chatId = msg.chat.id
     if (!isAdmin(msg.from.id)) {
@@ -253,7 +266,7 @@ bot.onText(/\/pair (.+)/, async (msg, match) => {
         return bot.sendMessage(chatId, '⚠️ Vous avez déjà une session active. Faites /logout avant de connecter un autre numéro.')
     }
 
-    await bot.sendMessage(chatId, `⏳ Génération du code de jumelage pour ${phoneNumber}...`)
+    await bot.sendMessage(chatId, generatingCodeMessage(phoneNumber))
     await startPairingSession(userId, phoneNumber, bot, chatId)
 })
 
